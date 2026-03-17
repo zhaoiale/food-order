@@ -1,30 +1,30 @@
 // ==============================================
-// 菜品数据
+// ✅ 你的专属菜品数据（泡馍店）
 // ==============================================
 const foodData = [
   // 热门推荐
-  { id: 1, name: "牛羊肉泡馍", price: 20.00, desc: "陕西特色 鲜香入味", img: "https://sl.bing.net/fbDDJBurjnE", category: "hot" },
+  { id: 1, name: "牛羊肉泡馍", price: 20.00, desc: "陕西特色 鲜香入味", img: "https://picsum.photos/seed/paomo/300/200", category: "hot" },
   { id: 2, name: "小炒泡馍", price: 20.00, desc: "酸辣爽口 地道风味", img: "https://picsum.photos/seed/xiaochao/300/200", category: "hot" },
-  
+
   // 主食
   { id: 3, name: "炒细面", price: 11.00, desc: "劲道细面 家常口味", img: "https://picsum.photos/seed/chaoximian/300/200", category: "staple" },
   { id: 4, name: "炒拉条", price: 11.00, desc: "西北特色 香辣过瘾", img: "https://picsum.photos/seed/chaolatia/300/200", category: "staple" },
   { id: 5, name: "炒饭", price: 11.00, desc: "粒粒分明 香气扑鼻", img: "https://picsum.photos/seed/chaofan/300/200", category: "staple" },
   { id: 6, name: "手工饺子", price: 20.00, desc: "现包水饺 20元/斤", img: "https://picsum.photos/seed/jiaozi/300/200", category: "staple" },
-  
+
   // 小吃/凉菜
   { id: 7, name: "素拼", price: 10.00, desc: "新鲜时蔬 爽口解腻", img: "https://picsum.photos/seed/supin/300/200", category: "snack" },
-  
+
   // 饮品
   { id: 8, name: "冰峰", price: 3.00, desc: "经典汽水 冰镇口感", img: "https://picsum.photos/seed/bingfeng/300/200", category: "drink" },
   { id: 9, name: "酸梅汤", price: 3.00, desc: "古法熬制 解辣解暑", img: "https://picsum.photos/seed/suanmeitang/300/200", category: "drink" },
   { id: 10, name: "小木屋", price: 4.00, desc: "果味饮料 冰镇更佳", img: "https://picsum.photos/seed/xiaomuwu/300/200", category: "drink" },
   { id: 11, name: "干啤", price: 4.00, desc: "清爽啤酒 冰镇爽口", img: "https://picsum.photos/seed/ganpi/300/200", category: "drink" },
-  { id: 12, name: "九度", price: 4.00, desc: "特色啤酒 口感醇厚", img: "https://picsum.photos/seed/jiudu/300/200", category: "drink" }
+  { id: 12, name: "九度", price: 4.00, desc: "陕西特色啤酒 口感醇厚", img: "https://picsum.photos/seed/jiudu/300/200", category: "drink" }
 ];
 
 // ==============================================
-// 购物车功能
+// 购物车功能（角标正常显示）
 // ==============================================
 let cart = JSON.parse(localStorage.getItem('orderCart')) || [];
 
@@ -61,7 +61,7 @@ function renderFoodList(category = 'all') {
         <div class="flex justify-between items-center">
           <span class="text-primary font-bold text-lg">¥${food.price.toFixed(2)}</span>
           <button onclick="addCart(${food.id})" class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center">
-            <i class="fa-solid-plus"></i>
+            <i class="fa-solid fa-plus"></i>
           </button>
         </div>
       </div>
@@ -93,19 +93,27 @@ window.changeCount = function(foodId, type) {
   updateCart();
 }
 
-// 更新购物车
+// 更新购物车（角标核心逻辑）
 function updateCart() {
   localStorage.setItem('orderCart', JSON.stringify(cart));
+  // 计算购物车总数量（角标显示的数字）
   const count = cart.reduce((sum, item) => sum + item.count, 0);
+  // 计算总价
   const total = cart.reduce((sum, item) => sum + (item.price * item.count), 0).toFixed(2);
-  
+
+  // 同步更新所有角标
   cartCount.textContent = count;
   mobileCartCount.textContent = count;
   modalCartCount.textContent = count;
+
+  // 同步更新总价
   pcTotal.textContent = total;
   modalTotal.textContent = total;
+
+  // 重新渲染购物车列表
   renderCartItems();
-  
+
+  // 禁用/启用结算按钮
   checkoutBtn.disabled = cart.length === 0;
   modalCheckoutBtn.disabled = cart.length === 0;
 }
