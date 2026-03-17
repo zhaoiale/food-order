@@ -1,59 +1,30 @@
 // ==============================================
-// ✅ 菜品数据：在这里添加菜品、替换图片、修改价格
+// 菜品数据
 // ==============================================
 const foodData = [
-  { 
-    id: 1, 
-    name: "招牌汉堡", 
-    price: 28.00, 
-    desc: "多汁牛肉+芝士", 
-    img: "https://picsum.photos/seed/burger/300/200",  // 替换这里的链接改图片
-    category: "hot" 
-  },
-  { 
-    id: 2, 
-    name: "香辣炸鸡", 
-    price: 32.00, 
-    desc: "外酥里嫩", 
-    img: "https://picsum.photos/seed/chicken/300/200", 
-    category: "hot" 
-  },
-  { 
-    id: 3, 
-    name: "芝士披萨", 
-    price: 45.00, 
-    desc: "意式薄底", 
-    img: "https://picsum.photos/seed/pizza/300/200", 
-    category: "staple" 
-  },
-  { 
-    id: 4, 
-    name: "原味薯条", 
-    price: 12.00, 
-    desc: "酥脆可口", 
-    img: "https://picsum.photos/seed/fries/300/200", 
-    category: "snack" 
-  },
-  { 
-    id: 5, 
-    name: "冰可乐", 
-    price: 8.00, 
-    desc: "冰镇解暑", 
-    img: "https://picsum.photos/seed/cola/300/200", 
-    category: "drink" 
-  },
-  { 
-    id: 6, 
-    name: "草莓冰淇淋", 
-    price: 18.00, 
-    desc: "奶香浓郁", 
-    img: "https://picsum.photos/seed/icecream/300/200", 
-    category: "dessert" 
-  }
+  // 热门推荐
+  { id: 1, name: "牛羊肉泡馍", price: 20.00, desc: "陕西特色 鲜香入味", img: "https://picsum.photos/seed/paomo/300/200", category: "hot" },
+  { id: 2, name: "小炒泡馍", price: 20.00, desc: "酸辣爽口 地道风味", img: "https://picsum.photos/seed/xiaochao/300/200", category: "hot" },
+  
+  // 主食
+  { id: 3, name: "炒细面", price: 11.00, desc: "劲道细面 家常口味", img: "https://picsum.photos/seed/chaoximian/300/200", category: "staple" },
+  { id: 4, name: "炒拉条", price: 11.00, desc: "西北特色 香辣过瘾", img: "https://picsum.photos/seed/chaolatia/300/200", category: "staple" },
+  { id: 5, name: "炒饭", price: 11.00, desc: "粒粒分明 香气扑鼻", img: "https://picsum.photos/seed/chaofan/300/200", category: "staple" },
+  { id: 6, name: "手工饺子", price: 20.00, desc: "现包水饺 20元/斤", img: "https://picsum.photos/seed/jiaozi/300/200", category: "staple" },
+  
+  // 小吃/凉菜
+  { id: 7, name: "素拼", price: 10.00, desc: "新鲜时蔬 爽口解腻", img: "https://picsum.photos/seed/supin/300/200", category: "snack" },
+  
+  // 饮品
+  { id: 8, name: "冰峰", price: 3.00, desc: "经典汽水 冰镇口感", img: "https://picsum.photos/seed/bingfeng/300/200", category: "drink" },
+  { id: 9, name: "酸梅汤", price: 3.00, desc: "古法熬制 解辣解暑", img: "https://picsum.photos/seed/suanmeitang/300/200", category: "drink" },
+  { id: 10, name: "小木屋", price: 4.00, desc: "果味饮料 冰镇更佳", img: "https://picsum.photos/seed/xiaomuwu/300/200", category: "drink" },
+  { id: 11, name: "干啤", price: 4.00, desc: "清爽啤酒 冰镇爽口", img: "https://picsum.photos/seed/ganpi/300/200", category: "drink" },
+  { id: 12, name: "九度", price: 4.00, desc: "特色啤酒 口感醇厚", img: "https://picsum.photos/seed/jiudu/300/200", category: "drink" }
 ];
 
 // ==============================================
-// 购物车功能（无需修改）
+// 购物车功能
 // ==============================================
 let cart = JSON.parse(localStorage.getItem('orderCart')) || [];
 
