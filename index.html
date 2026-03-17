@@ -2,54 +2,19 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <!-- 移动端适配核心配置 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>自助点单系统</title>
-  <!-- 引入Tailwind CSS -->
+  <!-- 引入外部样式库 -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- 引入图标库 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- 自定义样式配置 -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#FF7D00',
-            secondary: '#FFF5E6',
-            dark: '#333333',
-            gray: '#666666'
-          },
-          fontFamily: {
-            sans: ['System UI', 'Microsoft YaHei', 'sans-serif']
-          }
-        }
-      }
-    }
-  </script>
-  <style type="text/tailwindcss">
-    @layer utilities {
-      .content-auto {
-        content-visibility: auto;
-      }
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-      .card-hover {
-        @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
-      }
-    }
-  </style>
+  <!-- 引入自定义样式 -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-secondary text-dark min-h-screen">
   <!-- 顶部导航栏 -->
   <header class="bg-white shadow-sm sticky top-0 z-50">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <h1 class="text-[#FF7D00] text-xl font-bold"><i class="fa-solid-utensils mr-2"></i>美味餐厅</h1>
+      <h1 class="text-primary text-xl font-bold"><i class="fa-solid-utensils mr-2"></i>美味餐厅</h1>
       <div class="relative">
         <input type="text" placeholder="搜索菜品" class="px-3 py-2 rounded-full border border-gray/30 w-36 sm:w-48 outline-none focus:border-primary">
         <i class="fa-solid-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-gray"></i>
@@ -71,9 +36,7 @@
     </section>
 
     <!-- 菜品展示区 -->
-    <section class="lg:w-3/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="food-list">
-      <!-- JS动态渲染菜品 -->
-    </section>
+    <section class="lg:w-3/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="food-list"></section>
 
     <!-- PC端购物车 -->
     <section class="hidden lg:block lg:w-1/5 bg-white rounded-xl shadow p-4 h-fit sticky top-24">
@@ -131,157 +94,7 @@
     </div>
   </div>
 
-  <script>
-    // 1. 菜品模拟数据
-    const foodData = [
-      { id: 1, name: "招牌汉堡", price: 28.00, desc: "多汁牛肉+芝士", img: "https://picsum.photos/seed/burger/300/200", category: "hot" },
-      { id: 2, name: "香辣炸鸡", price: 32.00, desc: "外酥里嫩", img: "https://picsum.photos/seed/chicken/300/200", category: "hot" },
-      { id: 3, name: "芝士披萨", price: 45.00, desc: "意式薄底", img: "https://picsum.photos/seed/pizza/300/200", category: "staple" },
-      { id: 4, name: "原味薯条", price: 12.00, desc: "酥脆可口", img: "https://picsum.photos/seed/fries/300/200", category: "snack" },
-      { id: 5, name: "冰可乐", price: 8.00, desc: "冰镇解暑", img: "https://picsum.photos/seed/cola/300/200", category: "drink" },
-      { id: 6, name: "草莓冰淇淋", price: 18.00, desc: "奶香浓郁", img: "https://picsum.photos/seed/icecream/300/200", category: "dessert" },
-      { id: 7, name: "意大利面", price: 36.00, desc: "番茄肉酱", img: "https://picsum.photos/seed/pasta/300/200", category: "staple" },
-      { id: 8, name: "芒果汁", price: 16.00, desc: "鲜榨无添加", img: "https://picsum.photos/seed/mango/300/200", category: "drink" }
-    ];
-
-    // 2. 购物车数据（本地存储读取）
-    let cart = JSON.parse(localStorage.getItem('orderCart')) || [];
-
-    // 3. DOM元素
-    const foodList = document.getElementById('food-list');
-    const cartCount = document.getElementById('cart-count');
-    const mobileCartCount = document.getElementById('mobile-cart-count');
-    const modalCartCount = document.getElementById('modal-cart-count');
-    const pcCartItems = document.getElementById('pc-cart-items');
-    const mobileCartItems = document.getElementById('mobile-cart-items');
-    const pcTotal = document.getElementById('pc-total');
-    const modalTotal = document.getElementById('modal-total');
-    const checkoutBtn = document.getElementById('checkout-btn');
-    const modalCheckoutBtn = document.getElementById('modal-checkout-btn');
-    const mobileCartModal = document.getElementById('mobile-cart-modal');
-    const mobileCartBtn = document.getElementById('mobile-cart-btn');
-    const closeModal = document.getElementById('close-modal');
-    const successModal = document.getElementById('success-modal');
-    const closeSuccess = document.getElementById('close-success');
-    const categoryBtns = document.querySelectorAll('.category-btn');
-
-    // 4. 渲染菜品列表
-    function renderFoodList(category = 'all') {
-      let filterFood = foodData;
-      if (category !== 'all') {
-        filterFood = foodData.filter(item => item.category === category);
-      }
-      foodList.innerHTML = filterFood.map(food => `
-        <div class="bg-white rounded-xl overflow-hidden shadow card-hover">
-          <img src="${food.img}" alt="${food.name}" class="w-full h-40 object-cover">
-          <div class="p-3">
-            <h3 class="font-bold text-lg">${food.name}</h3>
-            <p class="text-gray text-sm mb-2">${food.desc}</p>
-            <div class="flex justify-between items-center">
-              <span class="text-primary font-bold text-lg">¥${food.price.toFixed(2)}</span>
-              <button onclick="addCart(${food.id})" class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center">
-                <i class="fa-solid-plus"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // 5. 加入购物车
-    window.addCart = function(foodId) {
-      const food = foodData.find(item => item.id === foodId);
-      const index = cart.findIndex(item => item.id === foodId);
-      if (index > -1) {
-        cart[index].count++;
-      } else {
-        cart.push({...food, count: 1});
-      }
-      updateCart();
-    }
-
-    // 6. 修改购物车数量
-    window.changeCount = function(foodId, type) {
-      const index = cart.findIndex(item => item.id === foodId);
-      if (type === 'minus') {
-        cart[index].count--;
-        if (cart[index].count === 0) cart.splice(index, 1);
-      } else {
-        cart[index].count++;
-      }
-      updateCart();
-    }
-
-    // 7. 更新购物车（渲染+存储+计价）
-    function updateCart() {
-      localStorage.setItem('orderCart', JSON.stringify(cart));
-      const count = cart.reduce((sum, item) => sum + item.count, 0);
-      const total = cart.reduce((sum, item) => sum + (item.price * item.count), 0).toFixed(2);
-      
-      // 更新数量
-      cartCount.textContent = count;
-      mobileCartCount.textContent = count;
-      modalCartCount.textContent = count;
-      
-      // 更新总价
-      pcTotal.textContent = total;
-      modalTotal.textContent = total;
-      
-      // 渲染购物车商品
-      renderCartItems();
-      
-      // 结算按钮状态
-      checkoutBtn.disabled = cart.length === 0;
-      modalCheckoutBtn.disabled = cart.length === 0;
-    }
-
-    // 8. 渲染购物车商品
-    function renderCartItems() {
-      if (cart.length === 0) {
-        pcCartItems.innerHTML = '<p class="text-gray text-center py-6">购物车为空</p>';
-        mobileCartItems.innerHTML = '<p class="text-gray text-center py-6">购物车为空</p>';
-        return;
-      }
-      const html = cart.map(item => `
-        <div class="flex justify-between items-center border-b pb-2">
-          <div class="flex-1">
-            <p class="font-medium">${item.name}</p>
-            <p class="text-primary text-sm">¥${item.price.toFixed(2)}</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="changeCount(${item.id}, 'minus')" class="w-6 h-6 rounded border flex items-center justify-center">-</button>
-            <span>${item.count}</span>
-            <button onclick="changeCount(${item.id}, 'plus')" class="w-6 h-6 rounded border flex items-center justify-center">+</button>
-          </div>
-        </div>
-      `).join('');
-      pcCartItems.innerHTML = html;
-      mobileCartItems.innerHTML = html;
-    }
-
-    // 9. 分类切换
-    categoryBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        categoryBtns.forEach(b => b.classList.remove('active', 'bg-primary', 'text-white'));
-        btn.classList.add('active', 'bg-primary', 'text-white');
-        renderFoodList(btn.dataset.category);
-      });
-    });
-
-    // 10. 弹窗控制
-    mobileCartBtn.addEventListener('click', () => mobileCartModal.classList.remove('hidden'));
-    closeModal.addEventListener('click', () => mobileCartModal.classList.add('hidden'));
-    checkoutBtn.addEventListener('click', () => successModal.classList.remove('hidden'));
-    modalCheckoutBtn.addEventListener('click', () => successModal.classList.remove('hidden'));
-    closeSuccess.addEventListener('click', () => {
-      successModal.classList.add('hidden');
-      cart = [];
-      updateCart();
-    });
-
-    // 初始化
-    renderFoodList();
-    updateCart();
-  </script>
+  <!-- 引入JS逻辑 -->
+  <script src="app.js"></script>
 </body>
 </html>
