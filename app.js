@@ -144,8 +144,8 @@ function renderFoodList(category = 'all') {
         <p class="text-gray text-sm mb-2">${food.desc}</p>
         <div class="flex justify-between items-center">
           <span class="text-primary font-bold text-lg">¥${food.price.toFixed(2)}</span>
-          <!-- 修复后的加号按钮（文字版，带边框和阴影） -->
-          <button onclick="addCart(${food.id})" class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center border-2 border-white shadow-md">
+          <!-- 标红加号按钮：红色+号 + 白色背景 + 红色边框 -->
+          <button onclick="addCart(${food.id})" class="bg-white text-red-600 w-8 h-8 rounded-full flex items-center justify-center border-2 border-red-600 shadow-sm hover:bg-red-50 transition-all">
             <span class="text-lg font-bold">+</span>
           </button>
         </div>
