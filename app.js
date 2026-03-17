@@ -3,7 +3,7 @@
 // ==============================================
 const foodData = [
   // 热门推荐
-  { id: 1, name: "牛羊肉泡馍", price: 20.00, desc: "陕西特色 鲜香入味", img: "https://picsum.photos/seed/paomo/300/200", category: "hot" },
+  { id: 1, name: "牛羊肉泡馍", price: 20.00, desc: "陕西特色 鲜香入味", img: "https://"D:\桌面\food-order\牛羊肉泡馍.jpg"", category: "hot" },
   { id: 2, name: "小炒泡馍", price: 20.00, desc: "酸辣爽口 地道风味", img: "https://picsum.photos/seed/xiaochao/300/200", category: "hot" },
   
   // 主食
