@@ -144,15 +144,15 @@ function renderFoodList(category = 'all') {
         <p class="text-gray text-sm mb-2">${food.desc}</p>
         <div class="flex justify-between items-center">
           <span class="text-primary font-bold text-lg">¥${food.price.toFixed(2)}</span>
-          <button onclick="addCart(${food.id})" class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center">
-            <i class="fa-solid fa-plus"></i>
+          <!-- 修复后的加号按钮（文字版，带边框和阴影） -->
+          <button onclick="addCart(${food.id})" class="bg-primary text-white w-8 h-8 rounded-full flex items-center justify-center border-2 border-white shadow-md">
+            <span class="text-lg font-bold">+</span>
           </button>
         </div>
       </div>
     </div>
   `).join('');
 }
-
 // 加入购物车
 window.addCart = function(foodId) {
   const food = foodData.find(item => item.id === foodId);
