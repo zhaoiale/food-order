@@ -130,7 +130,7 @@ const successModal = document.getElementById('success-modal');
 const closeSuccess = document.getElementById('close-success');
 const categoryBtns = document.querySelectorAll('.category-btn');
 
-// 渲染菜品列表
+// 渲染菜品列表（修改后，含图片比例适配）
 function renderFoodList(category = 'all') {
   let filterFood = foodData;
   if (category !== 'all') {
@@ -138,13 +138,16 @@ function renderFoodList(category = 'all') {
   }
   foodList.innerHTML = filterFood.map(food => `
     <div class="bg-white rounded-xl overflow-hidden shadow card-hover">
-      <img src="${food.img}" alt="${food.name}" class="w-full h-40 object-cover">
+      <!-- 新增比例容器，替换原直接img标签 -->
+      <div class="food-img-container">
+        <img src="${food.img}" alt="${food.name}" class="food-img">
+      </div>
       <div class="p-3">
         <h3 class="font-bold text-lg">${food.name}</h3>
         <p class="text-gray text-sm mb-2">${food.desc}</p>
         <div class="flex justify-between items-center">
           <span class="text-primary font-bold text-lg">¥${food.price.toFixed(2)}</span>
-          <!-- 标红加号按钮：红色+号 + 白色背景 + 红色边框 -->
+          <!-- 标红加号按钮（保留你之前的样式） -->
           <button onclick="addCart(${food.id})" class="bg-white text-red-600 w-8 h-8 rounded-full flex items-center justify-center border-2 border-red-600 shadow-sm hover:bg-red-50 transition-all">
             <span class="text-lg font-bold">+</span>
           </button>
@@ -235,9 +238,30 @@ categoryBtns.forEach(btn => {
   });
 });
 
-// 弹窗控制
-mobileCartBtn.addEventListener('click', () => mobileCartModal.classList.remove('hidden'));
-closeModal.addEventListener('click', () => mobileCartModal.classList.add('hidden'));
+// 弹窗控制（强化版，修复无法关闭问题）
+// 打开购物车弹窗
+mobileCartBtn.addEventListener('click', () => {
+  mobileCartModal.classList.remove('hidden');
+  // 确保弹窗显示时是flex布局（防止布局错乱）
+  mobileCartModal.style.display = 'flex';
+});
+
+// 关闭按钮关闭弹窗
+closeModal.addEventListener('click', () => {
+  mobileCartModal.classList.add('hidden');
+  mobileCartModal.style.display = 'none';
+});
+
+// 新增：点击遮罩层（黑色半透明区域）也能关闭弹窗
+mobileCartModal.addEventListener('click', (e) => {
+  // 只点击遮罩层（弹窗容器）时关闭，点击弹窗内容区不关闭
+  if (e.target === mobileCartModal) {
+    mobileCartModal.classList.add('hidden');
+    mobileCartModal.style.display = 'none';
+  }
+});
+
+// 下单成功弹窗逻辑（保留）
 checkoutBtn.addEventListener('click', () => successModal.classList.remove('hidden'));
 modalCheckoutBtn.addEventListener('click', () => successModal.classList.remove('hidden'));
 closeSuccess.addEventListener('click', () => {

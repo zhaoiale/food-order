@@ -64,12 +64,15 @@
     </button>
   </div>
 
-  <!-- 移动端购物车弹窗 -->
+  <!-- 移动端购物车弹窗（修改关闭按钮部分） -->
   <div id="mobile-cart-modal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-end">
     <div class="bg-white rounded-t-2xl w-full max-h-[80vh] overflow-y-auto p-4">
       <div class="flex justify-between items-center mb-3">
         <h2 class="text-lg font-bold">购物车 <span id="modal-cart-count" class="bg-primary text-white px-2 rounded-full text-sm">0</span></h2>
-        <button id="close-modal" class="text-xl"><i class="fa-solid-xmark"></i></button>
+        <!-- 新增z-10和cursor-pointer，确保点击区域足够、层级最高 -->
+        <button id="close-modal" class="text-xl z-10 cursor-pointer w-8 h-8 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
       <div id="mobile-cart-items" class="max-h-60 overflow-y-auto scrollbar-hide space-y-3 mb-4">
         <p class="text-gray text-center py-6">购物车为空</p>
