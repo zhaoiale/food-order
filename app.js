@@ -148,7 +148,35 @@ window.addEventListener("DOMContentLoaded", () => {
   renderFoodList(foodData);
   updateCartUI();
   loading.style.display = "none";
+
+  // ===== 核心修复：确保所有弹窗按钮事件正确绑定 =====
+  bindModalEvents();
 });
+
+// 绑定所有弹窗事件（统一管理，避免绑定失效）
+function bindModalEvents() {
+  // 关闭规格弹窗
+  closeSpec.addEventListener("click", () => {
+    specModal.classList.add("hidden");
+    specModal.style.display = "none"; // 重置display
+  });
+
+  // 关闭移动端购物车弹窗
+  const closeModal = document.getElementById("close-modal");
+  closeModal.addEventListener("click", () => {
+    const mobileCartModal = document.getElementById("mobile-cart-modal");
+    mobileCartModal.classList.add("hidden");
+    mobileCartModal.style.display = "none"; // 重置display
+  });
+
+  // 关闭下单成功弹窗（核心修复点）
+  const closeSuccess = document.getElementById("close-success");
+  closeSuccess.addEventListener("click", () => {
+    const successModal = document.getElementById("success-modal");
+    successModal.classList.add("hidden");
+    successModal.style.display = "none"; // 重置display，解决点击无响应
+  });
+}
 
 // 渲染菜品列表 - 修复图片显示、完善卡片结构
 function renderFoodList(list) {
@@ -211,6 +239,7 @@ function openSpec(id) {
   });
 
   specModal.classList.remove("hidden");
+  specModal.style.display = "flex"; // 显式设置flex
 }
 
 // 规格数量调整
@@ -248,10 +277,9 @@ specConfirm.addEventListener("click", () => {
   localStorage.setItem("cart", JSON.stringify(cart));
   updateCartUI();
   specModal.classList.add("hidden");
+  specModal.style.display = "none"; // 关闭时重置display
   alert(`${item.name}(${item.spec}) × ${item.count} 已加入购物车`);
 });
-
-closeSpec.addEventListener("click", () => specModal.classList.add("hidden"));
 
 // 更新购物车UI - 优化结算按钮禁用状态、同步备注
 function updateCartUI() {
@@ -322,22 +350,22 @@ function changeCart(index, num) {
 // 移动端购物车弹窗
 const mobileCartBtn = document.getElementById("mobile-cart-btn");
 const mobileCartModal = document.getElementById("mobile-cart-modal");
-const closeModal = document.getElementById("close-modal");
 mobileCartBtn.addEventListener("click", () => {
   mobileCartModal.classList.remove("hidden");
-  mobileCartModal.style.display = "flex";
+  mobileCartModal.style.display = "flex"; // 显式设置flex
 });
-closeModal.addEventListener("click", () => mobileCartModal.classList.add("hidden"));
 
 // 点击弹窗外部关闭
 mobileCartModal.addEventListener("click", (e) => {
   if (e.target === mobileCartModal) {
     mobileCartModal.classList.add("hidden");
+    mobileCartModal.style.display = "none";
   }
 });
 specModal.addEventListener("click", (e) => {
   if (e.target === specModal) {
     specModal.classList.add("hidden");
+    specModal.style.display = "none";
   }
 });
 
@@ -361,20 +389,17 @@ function checkout() {
   console.log("订单信息：", orderInfo);
 
   // 显示成功弹窗
-  document.getElementById("success-modal").classList.remove("hidden");
-  document.getElementById("success-modal").style.display = "flex";
+  const successModal = document.getElementById("success-modal");
+  successModal.classList.remove("hidden");
+  successModal.style.display = "flex"; // 显式设置flex
 
   // 清空购物车
   cart = [];
   localStorage.removeItem("cart");
   updateCartUI();
   mobileCartModal.classList.add("hidden");
+  mobileCartModal.style.display = "none";
 }
-
-// 关闭成功弹窗
-document.getElementById("close-success").addEventListener("click", () => {
-  document.getElementById("success-modal").classList.add("hidden");
-});
 
 // 返回顶部
 window.addEventListener("scroll", () => {
