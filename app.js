@@ -1,5 +1,5 @@
 // ==============================================
-// 菜品数据（泡馍店）
+// 菜品数据（泡馍店）- 补充规格属性
 // ==============================================
 const foodData = [
   // 热门推荐
@@ -9,7 +9,8 @@ const foodData = [
     price: 20.00,
     desc: "陕西特色 鲜香入味",
     img: "./images/paomo.png",
-    category: "hot"
+    category: "hot",
+    spec: ["普通", "优质", "大碗"] // 新增规格
   },
   {
     id: 2,
@@ -17,7 +18,8 @@ const foodData = [
     price: 20.00,
     desc: "酸辣爽口 地道风味",
     img: "./images/xiaochao.png",
-    category: "hot"
+    category: "hot",
+    spec: ["微辣", "中辣", "特辣"] // 新增规格
   },
 
   // 主食
@@ -27,7 +29,8 @@ const foodData = [
     price: 11.00,
     desc: "劲道细面 家常口味",
     img: "./images/chaoximian.png",
-    category: "staple"
+    category: "staple",
+    spec: ["原味", "加蛋", "加肉"] // 新增规格
   },
   {
     id: 4,
@@ -35,7 +38,8 @@ const foodData = [
     price: 11.00,
     desc: "西北特色 香辣过瘾",
     img: "./images/chaolatiao.png",
-    category: "staple"
+    category: "staple",
+    spec: ["微辣", "中辣", "特辣"] // 新增规格
   },
   {
     id: 5,
@@ -43,7 +47,8 @@ const foodData = [
     price: 11.00,
     desc: "粒粒分明 香气扑鼻",
     img: "./images/chaofan.png",
-    category: "staple"
+    category: "staple",
+    spec: ["蛋炒饭", "肉丝炒饭", "什锦炒饭"] // 新增规格
   },
   {
     id: 6,
@@ -51,7 +56,8 @@ const foodData = [
     price: 20.00,
     desc: "现包水饺 20元/斤",
     img: "./images/shuijiao.png",
-    category: "staple"
+    category: "staple",
+    spec: ["韭菜猪肉", "白菜猪肉", "三鲜"] // 新增规格
   },
 
   // 小吃/凉菜
@@ -61,7 +67,8 @@ const foodData = [
     price: 10.00,
     desc: "新鲜时蔬 爽口解腻",
     img: "./images/supin.png",
-    category: "snack"
+    category: "snack",
+    spec: ["微辣", "不辣", "多醋"] // 新增规格
   },
 
   // 饮品
@@ -71,7 +78,8 @@ const foodData = [
     price: 3.00,
     desc: "经典汽水 冰镇口感",
     img: "./images/bingfeng.png",
-    category: "drink"
+    category: "drink",
+    spec: ["常温", "冰镇"] // 新增规格
   },
   {
     id: 9,
@@ -79,7 +87,8 @@ const foodData = [
     price: 3.00,
     desc: "古法熬制 解辣解暑",
     img: "./images/suanmeitang.png",
-    category: "drink"
+    category: "drink",
+    spec: ["常温", "冰镇", "加冰"] // 新增规格
   },
   {
     id: 10,
@@ -87,7 +96,8 @@ const foodData = [
     price: 4.00,
     desc: "果味饮料 冰镇更佳",
     img: "./images/xiaomuwu.png",
-    category: "drink"
+    category: "drink",
+    spec: ["菠萝味", "橙味", "冰镇"] // 新增规格
   },
   {
     id: 11,
@@ -95,7 +105,8 @@ const foodData = [
     price: 4.00,
     desc: "清爽啤酒 冰镇爽口",
     img: "./images/ganpi.png",
-    category: "drink"
+    category: "drink",
+    spec: ["常温", "冰镇"] // 新增规格
   },
   {
     id: 12,
@@ -103,173 +114,275 @@ const foodData = [
     price: 4.00,
     desc: "陕西特色啤酒 口感醇厚",
     img: "./images/jiudu.png",
-    category: "drink"
+    category: "drink",
+    spec: ["常温", "冰镇"] // 新增规格
   }
 ];
 
 // ==============================================
 // 购物车功能
 // ==============================================
-let cart = JSON.parse(localStorage.getItem('orderCart')) || [];
+// 修复重复声明cart的问题
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let currentFood = null;
 
 // DOM元素
-const foodList = document.getElementById('food-list');
-const cartCount = document.getElementById('cart-count');
-const mobileCartCount = document.getElementById('mobile-cart-count');
-const modalCartCount = document.getElementById('modal-cart-count');
-const pcCartItems = document.getElementById('pc-cart-items');
-const mobileCartItems = document.getElementById('mobile-cart-items');
-const pcTotal = document.getElementById('pc-total');
-const modalTotal = document.getElementById('modal-total');
-const checkoutBtn = document.getElementById('checkout-btn');
-const modalCheckoutBtn = document.getElementById('modal-checkout-btn');
-const mobileCartModal = document.getElementById('mobile-cart-modal');
-const mobileCartBtn = document.getElementById('mobile-cart-btn');
-const closeModal = document.getElementById('close-modal');
-const successModal = document.getElementById('success-modal');
-const closeSuccess = document.getElementById('close-success');
-const categoryBtns = document.querySelectorAll('.category-btn');
+const foodList = document.getElementById("food-list");
+const searchInput = document.getElementById("search-input");
+const categoryBtns = document.querySelectorAll(".category-btn");
+const loading = document.getElementById("loading");
+const emptyFood = document.getElementById("empty-food");
+const specModal = document.getElementById("spec-modal");
+const specFoodName = document.getElementById("spec-food-name");
+const specPrice = document.getElementById("spec-price");
+const specOptions = document.getElementById("spec-options");
+const specCount = document.getElementById("spec-count");
+const specMinus = document.getElementById("spec-minus");
+const specPlus = document.getElementById("spec-plus");
+const specConfirm = document.getElementById("spec-confirm");
+const closeSpec = document.getElementById("close-spec");
+const backTop = document.getElementById("backTop");
 
-// 渲染菜品列表（修改后，含图片比例适配）
-function renderFoodList(category = 'all') {
-  let filterFood = foodData;
-  if (category !== 'all') {
-    filterFood = foodData.filter(item => item.category === category);
-  }
-  foodList.innerHTML = filterFood.map(food => `
-    <div class="bg-white rounded-xl overflow-hidden shadow card-hover">
-      <!-- 新增比例容器，替换原直接img标签 -->
-      <div class="food-img-container">
-        <img src="${food.img}" alt="${food.name}" class="food-img">
-      </div>
-      <div class="p-3">
-        <h3 class="font-bold text-lg">${food.name}</h3>
-        <p class="text-gray text-sm mb-2">${food.desc}</p>
-        <div class="flex justify-between items-center">
-          <span class="text-primary font-bold text-lg">¥${food.price.toFixed(2)}</span>
-          <!-- 标红加号按钮（保留你之前的样式） -->
-          <button onclick="addCart(${food.id})" class="bg-white text-red-600 w-8 h-8 rounded-full flex items-center justify-center border-2 border-red-600 shadow-sm hover:bg-red-50 transition-all">
-            <span class="text-lg font-bold">+</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-// 加入购物车
-window.addCart = function(foodId) {
-  const food = foodData.find(item => item.id === foodId);
-  const index = cart.findIndex(item => item.id === foodId);
-  if (index > -1) {
-    cart[index].count++;
-  } else {
-    cart.push({...food, count: 1});
-  }
-  updateCart();
-}
+// 初始化页面
+window.addEventListener("DOMContentLoaded", () => {
+  renderFoodList(foodData);
+  updateCartUI();
+  loading.style.display = "none";
+});
 
-// 修改购物车数量
-window.changeCount = function(foodId, type) {
-  const index = cart.findIndex(item => item.id === foodId);
-  if (type === 'minus') {
-    cart[index].count--;
-    if (cart[index].count === 0) cart.splice(index, 1);
-  } else {
-    cart[index].count++;
-  }
-  updateCart();
-}
-
-// 更新购物车（角标核心逻辑）
-function updateCart() {
-  localStorage.setItem('orderCart', JSON.stringify(cart));
-  // 计算购物车总数量（角标显示的数字）
-  const count = cart.reduce((sum, item) => sum + item.count, 0);
-  // 计算总价
-  const total = cart.reduce((sum, item) => sum + (item.price * item.count), 0).toFixed(2);
-
-  // 同步更新所有角标
-  cartCount.textContent = count;
-  mobileCartCount.textContent = count;
-  modalCartCount.textContent = count;
-
-  // 同步更新总价
-  pcTotal.textContent = total;
-  modalTotal.textContent = total;
-
-  // 重新渲染购物车列表
-  renderCartItems();
-
-  // 禁用/启用结算按钮
-  checkoutBtn.disabled = cart.length === 0;
-  modalCheckoutBtn.disabled = cart.length === 0;
-}
-
-// 渲染购物车
-function renderCartItems() {
-  if (cart.length === 0) {
-    pcCartItems.innerHTML = '<p class="text-gray text-center py-6">购物车为空</p>';
-    mobileCartItems.innerHTML = '<p class="text-gray text-center py-6">购物车为空</p>';
+// 渲染菜品列表 - 修复图片显示、完善卡片结构
+function renderFoodList(list) {
+  if (list.length === 0) {
+    emptyFood.classList.remove("hidden");
     return;
   }
-  const html = cart.map(item => `
-    <div class="flex justify-between items-center border-b pb-2">
-      <div class="flex-1">
-        <p class="font-medium">${item.name}</p>
-        <p class="text-primary text-sm">¥${item.price.toFixed(2)}</p>
-      </div>
-      <div class="flex items-center gap-2">
-        <button onclick="changeCount(${item.id}, 'minus')" class="w-6 h-6 rounded border flex items-center justify-center">-</button>
-        <span>${item.count}</span>
-        <button onclick="changeCount(${item.id}, 'plus')" class="w-6 h-6 rounded border flex items-center justify-center">+</button>
+  emptyFood.classList.add("hidden");
+  foodList.innerHTML = list.map(item => `
+    <div class="food-card" onclick="openSpec(${item.id})">
+      <img src="${item.img}" alt="${item.name}" class="food-img">
+      <div class="food-info">
+        <h3 class="food-title">${item.name}</h3>
+        <p class="text-gray-600 text-sm mb-2">${item.desc}</p>
+        <p class="food-price">¥${item.price.toFixed(2)}</p>
+        <button class="mt-2 w-full bg-[#ff6b35] text-white py-1 rounded text-sm">点单</button>
       </div>
     </div>
-  `).join('');
-  pcCartItems.innerHTML = html;
-  mobileCartItems.innerHTML = html;
+  `).join("");
 }
 
-// 分类切换
+// 搜索功能
+searchInput.addEventListener("input", (e) => {
+  const key = e.target.value.toLowerCase().trim();
+  const filtered = foodData.filter(item => item.name.toLowerCase().includes(key));
+  renderFoodList(filtered);
+});
+
+// 分类筛选
 categoryBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    categoryBtns.forEach(b => b.classList.remove('active', 'bg-primary', 'text-white'));
-    btn.classList.add('active', 'bg-primary', 'text-white');
-    renderFoodList(btn.dataset.category);
+  btn.addEventListener("click", () => {
+    categoryBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const cate = btn.dataset.category;
+    const filtered = cate === "all" ? foodData : foodData.filter(item => item.category === cate);
+    renderFoodList(filtered);
   });
 });
 
-// 弹窗控制（强化版，修复无法关闭问题）
-// 打开购物车弹窗
-mobileCartBtn.addEventListener('click', () => {
-  mobileCartModal.classList.remove('hidden');
-  // 确保弹窗显示时是flex布局（防止布局错乱）
-  mobileCartModal.style.display = 'flex';
+// 打开规格弹窗
+function openSpec(id) {
+  currentFood = foodData.find(item => item.id === id);
+  if (!currentFood) return; // 容错处理
+
+  specFoodName.textContent = currentFood.name;
+  specPrice.textContent = currentFood.price.toFixed(2);
+  specCount.value = 1;
+
+  // 渲染规格选项，默认选中第一个
+  specOptions.innerHTML = currentFood.spec.map((s, idx) => `
+    <div class="spec-item ${idx === 0 ? 'active' : ''}" data-spec="${s}">${s}</div>
+  `).join("");
+
+  // 规格选择事件
+  document.querySelectorAll(".spec-item").forEach(item => {
+    item.addEventListener("click", () => {
+      document.querySelectorAll(".spec-item").forEach(i => i.classList.remove("active"));
+      item.classList.add("active");
+    });
+  });
+
+  specModal.classList.remove("hidden");
+}
+
+// 规格数量调整
+specMinus.addEventListener("click", () => {
+  if (specCount.value > 1) {
+    specCount.value = Number(specCount.value) - 1;
+  }
+});
+specPlus.addEventListener("click", () => {
+  specCount.value = Number(specCount.value) + 1;
 });
 
-// 关闭按钮关闭弹窗
-closeModal.addEventListener('click', () => {
-  mobileCartModal.classList.add('hidden');
-  mobileCartModal.style.display = 'none';
+// 加入购物车
+specConfirm.addEventListener("click", () => {
+  const specActive = document.querySelector(".spec-item.active");
+  if (!specActive) return alert("请选择规格");
+  if (!currentFood) return;
+
+  const item = {
+    id: currentFood.id,
+    name: currentFood.name,
+    spec: specActive.dataset.spec,
+    price: currentFood.price,
+    count: Number(specCount.value)
+  };
+
+  // 检查是否已存在相同规格的菜品
+  const index = cart.findIndex(i => i.id === item.id && i.spec === item.spec);
+  if (index >= 0) {
+    cart[index].count += item.count;
+  } else {
+    cart.push(item);
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartUI();
+  specModal.classList.add("hidden");
+  alert(`${item.name}(${item.spec}) × ${item.count} 已加入购物车`);
 });
 
-// 新增：点击遮罩层（黑色半透明区域）也能关闭弹窗
-mobileCartModal.addEventListener('click', (e) => {
-  // 只点击遮罩层（弹窗容器）时关闭，点击弹窗内容区不关闭
+closeSpec.addEventListener("click", () => specModal.classList.add("hidden"));
+
+// 更新购物车UI - 优化结算按钮禁用状态、同步备注
+function updateCartUI() {
+  const total = cart.reduce((sum, i) => sum + i.price * i.count, 0);
+  const count = cart.reduce((sum, i) => sum + i.count, 0);
+
+  // 更新数量和总价
+  document.getElementById("pc-total").textContent = total.toFixed(2);
+  document.getElementById("modal-total").textContent = total.toFixed(2);
+  document.getElementById("cart-count").textContent = count;
+  document.getElementById("mobile-cart-count").textContent = count;
+  document.getElementById("modal-cart-count").textContent = count;
+
+  // 更新购物车列表
+  const renderCart = (el) => {
+    if (cart.length === 0) return `<p class="text-gray-500 text-center py-6">购物车为空</p>`;
+    return cart.map((item, idx) => `
+      <div class="cart-item">
+        <div class="cart-name">${item.name}(${item.spec})</div>
+        <div class="cart-quantity">
+          <button onclick="changeCart(${idx}, -1)" ${item.count <= 1 ? 'disabled' : ''}>-</button>
+          <span>${item.count}</span>
+          <button onclick="changeCart(${idx}, 1)">+</button>
+        </div>
+        <span>¥${(item.price * item.count).toFixed(2)}</span>
+      </div>
+    `).join("");
+  };
+
+  document.getElementById("pc-cart-items").innerHTML = renderCart();
+  document.getElementById("mobile-cart-items").innerHTML = renderCart();
+
+  // 同步备注内容
+  const pcNote = document.getElementById("order-note");
+  const mobileNote = document.getElementById("mobile-order-note");
+  pcNote.addEventListener("input", () => {
+    mobileNote.value = pcNote.value;
+  });
+  mobileNote.addEventListener("input", () => {
+    pcNote.value = mobileNote.value;
+  });
+
+  // 控制结算按钮禁用状态
+  const checkoutBtn = document.getElementById("checkout-btn");
+  const modalCheckoutBtn = document.getElementById("modal-checkout-btn");
+  if (cart.length > 0) {
+    checkoutBtn.removeAttribute("disabled");
+    modalCheckoutBtn.removeAttribute("disabled");
+  } else {
+    checkoutBtn.setAttribute("disabled", "true");
+    modalCheckoutBtn.setAttribute("disabled", "true");
+  }
+}
+
+// 修改购物车数量 - 优化容错
+function changeCart(index, num) {
+  if (index < 0 || index >= cart.length) return;
+
+  cart[index].count += num;
+  if (cart[index].count <= 0) {
+    cart.splice(index, 1);
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  updateCartUI();
+}
+
+// 移动端购物车弹窗
+const mobileCartBtn = document.getElementById("mobile-cart-btn");
+const mobileCartModal = document.getElementById("mobile-cart-modal");
+const closeModal = document.getElementById("close-modal");
+mobileCartBtn.addEventListener("click", () => {
+  mobileCartModal.classList.remove("hidden");
+  mobileCartModal.style.display = "flex";
+});
+closeModal.addEventListener("click", () => mobileCartModal.classList.add("hidden"));
+
+// 点击弹窗外部关闭
+mobileCartModal.addEventListener("click", (e) => {
   if (e.target === mobileCartModal) {
-    mobileCartModal.classList.add('hidden');
-    mobileCartModal.style.display = 'none';
+    mobileCartModal.classList.add("hidden");
+  }
+});
+specModal.addEventListener("click", (e) => {
+  if (e.target === specModal) {
+    specModal.classList.add("hidden");
   }
 });
 
-// 下单成功弹窗逻辑（保留）
-checkoutBtn.addEventListener('click', () => successModal.classList.remove('hidden'));
-modalCheckoutBtn.addEventListener('click', () => successModal.classList.remove('hidden'));
-closeSuccess.addEventListener('click', () => {
-  successModal.classList.add('hidden');
+// 结算功能
+document.getElementById("checkout-btn").addEventListener("click", checkout);
+document.getElementById("modal-checkout-btn").addEventListener("click", checkout);
+
+function checkout() {
+  if (cart.length === 0) return alert("购物车为空");
+
+  // 获取订单备注
+  const note = document.getElementById("order-note").value || document.getElementById("mobile-order-note").value;
+  const orderInfo = {
+    items: cart,
+    total: cart.reduce((sum, i) => sum + i.price * i.count, 0),
+    note: note || "无备注",
+    time: new Date().toLocaleString()
+  };
+
+  // 模拟下单（可替换为真实接口请求）
+  console.log("订单信息：", orderInfo);
+
+  // 显示成功弹窗
+  document.getElementById("success-modal").classList.remove("hidden");
+  document.getElementById("success-modal").style.display = "flex";
+
+  // 清空购物车
   cart = [];
-  updateCart();
+  localStorage.removeItem("cart");
+  updateCartUI();
+  mobileCartModal.classList.add("hidden");
+}
+
+// 关闭成功弹窗
+document.getElementById("close-success").addEventListener("click", () => {
+  document.getElementById("success-modal").classList.add("hidden");
 });
 
-// 初始化
-renderFoodList();
-updateCart();
+// 返回顶部
+window.addEventListener("scroll", () => {
+  window.scrollY > 300 ? backTop.classList.add("show") : backTop.classList.remove("show");
+});
+backTop.addEventListener("click", () => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+});

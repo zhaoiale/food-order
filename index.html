@@ -3,101 +3,137 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>自助点单系统</title>
-  <!-- 引入外部样式库 -->
+  <title>美味餐厅 - 自助点单</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- 引入自定义样式 -->
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-secondary text-dark min-h-screen">
-  <!-- 顶部导航栏 -->
-  <header class="bg-gray-50 shadow-sm sticky top-0 z-50">
-    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-      <h1 class="text-primary text-xl font-bold"><i class="fa-solid-utensils mr-2"></i>美味餐厅</h1>
-      <div class="relative">
-        <input type="text" placeholder="搜索菜品" class="px-3 py-2 rounded-full border border-gray/30 w-36 sm:w-48 outline-none focus:border-primary">
-        <i class="fa-solid-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-gray"></i>
-      </div>
-    </div>
-  </header>
-
-  <main class="container mx-auto px-4 py-4 lg:flex gap-6">
-    <!-- 分类栏 -->
-    <section class="lg:w-1/5 mb-4 lg:mb-0 overflow-x-auto scrollbar-hide">
-      <div class="flex lg:flex-col gap-2 whitespace-nowrap lg:whitespace-normal">
-        <button class="category-btn active px-4 py-2 rounded-full bg-primary text-white" data-category="all">全部菜品</button>
-        <button class="category-btn px-4 py-2 rounded-full bg-white" data-category="hot">热门推荐</button>
-        <button class="category-btn px-4 py-2 rounded-full bg-white" data-category="staple">主食</button>
-        <button class="category-btn px-4 py-2 rounded-full bg-white" data-category="snack">小吃</button>
-        <button class="category-btn px-4 py-2 rounded-full bg-white" data-category="drink">饮品</button>
-        <button class="category-btn px-4 py-2 rounded-full bg-white" data-category="dessert">甜品</button>
-      </div>
-    </section>
-
-    <!-- 菜品展示区 -->
-    <section class="lg:w-3/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="food-list"></section>
-
-    <!-- PC端购物车 -->
-    <section class="hidden lg:block lg:w-1/5 bg-white rounded-xl shadow p-4 h-fit sticky top-24">
-      <h2 class="text-lg font-bold border-b pb-2 mb-3 flex justify-between">
-        购物车 <span id="cart-count" class="bg-primary text-white px-2 rounded-full text-sm">0</span>
-      </h2>
-      <div id="pc-cart-items" class="max-h-96 overflow-y-auto scrollbar-hide space-y-3 mb-4">
-        <p class="text-gray text-center py-6">购物车为空</p>
-      </div>
-      <div class="border-t pt-3">
-        <div class="flex justify-between font-bold text-lg mb-3">
-          <span>总计：</span>
-          <span class="text-primary">¥<span id="pc-total">0.00</span></span>
-        </div>
-        <button id="checkout-btn" class="w-full bg-primary text-white py-3 rounded-lg font-bold disabled:bg-gray/50">去结算</button>
-      </div>
-    </section>
-  </main>
-
-  <!-- 移动端购物车按钮 -->
-  <div class="fixed bottom-6 right-6 lg:hidden z-50">
-    <button id="mobile-cart-btn" class="w-14 h-14 rounded-full bg-primary shadow-lg flex items-center justify-center text-white text-xl relative">
-      <i class="fa-solid-shopping-cart"></i>
-      <span id="mobile-cart-count" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">0</span>
-    </button>
-  </div>
-
-  <!-- 移动端购物车弹窗（修改关闭按钮部分） -->
-  <div id="mobile-cart-modal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-end">
-    <div class="bg-white rounded-t-2xl w-full max-h-[80vh] overflow-y-auto p-4">
-      <div class="flex justify-between items-center mb-3">
-        <h2 class="text-lg font-bold">购物车 <span id="modal-cart-count" class="bg-primary text-white px-2 rounded-full text-sm">0</span></h2>
-        <!-- 新增z-10和cursor-pointer，确保点击区域足够、层级最高 -->
-        <button id="close-modal" class="text-xl z-10 cursor-pointer w-8 h-8 flex items-center justify-center">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      <div id="mobile-cart-items" class="max-h-60 overflow-y-auto scrollbar-hide space-y-3 mb-4">
-        <p class="text-gray text-center py-6">购物车为空</p>
-      </div>
-      <div class="border-t pt-3">
-        <div class="flex justify-between font-bold text-lg mb-3">
-          <span>总计：</span>
-          <span class="text-primary">¥<span id="modal-total">0.00</span></span>
-        </div>
-        <button id="modal-checkout-btn" class="w-full bg-primary text-white py-3 rounded-lg font-bold disabled:bg-gray/50">去结算</button>
-      </div>
+<body class="bg-[#f8f9fa] text-gray-800 min-h-screen">
+<!-- 顶部导航 -->
+<header class="bg-white shadow-sm sticky top-0 z-50">
+  <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+    <h1 class="text-[#ff6b35] text-xl font-bold"><i class="fa-solid fa-utensils mr-2"></i>美味餐厅</h1>
+    <div class="relative">
+      <input type="text" id="search-input" placeholder="搜索菜品" class="px-3 py-2 rounded-full border border-gray-300 w-36 sm:w-48 outline-none focus:border-[#ff6b35] focus:ring-1 focus:ring-[#ff6b35]">
+      <i class="fa-solid fa-magnifying-glass absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"></i>
     </div>
   </div>
+</header>
 
-  <!-- 订单成功弹窗 -->
-  <div id="success-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
-    <div class="bg-white p-6 rounded-xl text-center w-80">
-      <i class="fa-solid-circle-check text-4xl text-green-500 mb-3"></i>
-      <h3 class="text-xl font-bold mb-2">下单成功！</h3>
-      <p class="text-gray mb-4">我们已收到您的订单，准备制作中~</p>
-      <button id="close-success" class="bg-primary text-white px-6 py-2 rounded-lg">确定</button>
+<main class="container mx-auto px-4 py-4 lg:flex gap-6">
+  <!-- 分类栏 -->
+  <section class="lg:w-1/5 mb-4 lg:mb-0 overflow-x-auto scrollbar-hide">
+    <div class="flex lg:flex-col gap-2 whitespace-nowrap lg:whitespace-normal">
+      <button class="category-btn active px-4 py-2 rounded-full bg-[#ff6b35] text-white" data-category="all">全部菜品</button>
+      <button class="category-btn px-4 py-2 rounded-full bg-white hover:bg-gray-100" data-category="hot">热门推荐</button>
+      <button class="category-btn px-4 py-2 rounded-full bg-white hover:bg-gray-100" data-category="staple">主食</button>
+      <button class="category-btn px-4 py-2 rounded-full bg-white hover:bg-gray-100" data-category="snack">小吃</button>
+      <button class="category-btn px-4 py-2 rounded-full bg-white hover:bg-gray-100" data-category="drink">饮品</button>
+    </div>
+  </section>
+
+  <!-- 菜品展示区 -->
+  <section class="lg:w-3/5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="food-list">
+    <div class="col-span-full py-12" id="loading">
+      <div class="loader"></div>
+      <p class="text-center mt-4 text-gray-500">加载菜品中...</p>
+    </div>
+    <div class="col-span-full py-12 hidden" id="empty-food">
+      <i class="fa-solid fa-utensils text-4xl text-gray-300 block text-center mb-2"></i>
+      <p class="text-center text-gray-500">暂无相关菜品~</p>
+    </div>
+  </section>
+
+  <!-- PC端购物车 -->
+  <section class="hidden lg:block lg:w-1/5 bg-white rounded-xl shadow p-4 h-fit sticky top-24">
+    <h2 class="text-lg font-bold border-b pb-2 mb-3 flex justify-between">
+      购物车 <span id="cart-count" class="bg-[#ff6b35] text-white px-2 rounded-full text-sm">0</span>
+    </h2>
+    <div id="pc-cart-items" class="max-h-64 overflow-y-auto scrollbar-hide space-y-3 mb-4">
+      <p class="text-gray-500 text-center py-6">购物车为空</p>
+    </div>
+    <div class="mb-4">
+      <label class="text-sm font-medium block mb-1">订单备注</label>
+      <textarea id="order-note" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none focus:border-[#ff6b35]" placeholder="少辣、多加醋..."></textarea>
+    </div>
+    <div class="border-t pt-3">
+      <div class="flex justify-between font-bold text-lg mb-3">
+        <span>总计：</span>
+        <span class="text-[#ff6b35]">¥<span id="pc-total">0.00</span></span>
+      </div>
+      <button id="checkout-btn" class="w-full bg-[#ff6b35] text-white py-3 rounded-lg font-bold disabled:bg-gray-300" disabled>去结算</button>
+    </div>
+  </section>
+</main>
+
+<!-- 移动端购物车按钮 -->
+<div class="fixed bottom-6 right-6 lg:hidden z-50">
+  <button id="mobile-cart-btn" class="w-14 h-14 rounded-full bg-[#ff6b35] shadow-lg flex items-center justify-center text-white text-xl relative">
+    <i class="fa-solid fa-shopping-cart"></i>
+    <span id="mobile-cart-count" class="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">0</span>
+  </button>
+</div>
+
+<!-- 返回顶部 -->
+<div class="back-to-top" id="backTop">
+  <i class="fa-solid fa-arrow-up"></i>
+</div>
+
+<!-- 移动端购物车弹窗 -->
+<div id="mobile-cart-modal" class="fixed inset-0 bg-black/50 z-50 hidden justify-center items-end">
+  <div class="bg-white rounded-t-2xl w-full max-h-[80vh] overflow-y-auto p-4">
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="text-lg font-bold">购物车 <span id="modal-cart-count" class="bg-[#ff6b35] text-white px-2 rounded-full text-sm">0</span></h2>
+      <button id="close-modal" class="text-xl"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="mobile-cart-items" class="max-h-40 overflow-y-auto space-y-3 mb-4">
+      <p class="text-gray-500 text-center py-6">购物车为空</p>
+    </div>
+    <div class="mb-4">
+      <label class="text-sm font-medium block mb-1">订单备注</label>
+      <textarea id="mobile-order-note" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="少辣、多加醋..."></textarea>
+    </div>
+    <div class="border-t pt-3">
+      <div class="flex justify-between font-bold text-lg mb-3">
+        <span>总计：</span>
+        <span class="text-[#ff6b35]">¥<span id="modal-total">0.00</span></span>
+      </div>
+      <button id="modal-checkout-btn" class="w-full bg-[#ff6b35] text-white py-3 rounded-lg font-bold" disabled>去结算</button>
     </div>
   </div>
+</div>
 
-  <!-- 引入JS逻辑 -->
-  <script src="app.js"></script>
+<!-- 规格选择弹窗 -->
+<div id="spec-modal" class="spec-modal hidden">
+  <div class="spec-content">
+    <h3 id="spec-food-name" class="text-lg font-bold mb-4"></h3>
+    <div class="mb-4">
+      <h4 class="text-sm font-medium mb-2">选择规格</h4>
+      <div id="spec-options" class="flex flex-wrap gap-2"></div>
+    </div>
+    <div class="flex justify-between items-center mb-6">
+      <span>¥<span id="spec-price">0.00</span></span>
+      <div class="flex items-center gap-2">
+        <button id="spec-minus" class="w-8 h-8 border rounded">-</button>
+        <input id="spec-count" type="number" value="1" min="1" class="w-12 text-center border rounded">
+        <button id="spec-plus" class="w-8 h-8 border rounded">+</button>
+      </div>
+    </div>
+    <button id="spec-confirm" class="w-full bg-[#ff6b35] text-white py-2 rounded">加入购物车</button>
+    <button id="close-spec" class="mt-2 w-full border py-2 rounded">取消</button>
+  </div>
+</div>
+
+<!-- 下单成功弹窗 -->
+<div id="success-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+  <div class="bg-white p-6 rounded-xl text-center w-80">
+    <i class="fa-solid fa-circle-check text-4xl text-green-500 mb-3"></i>
+    <h3 class="text-xl font-bold mb-2">下单成功！</h3>
+    <p class="text-gray-500 mb-4">订单已收到，制作中~</p>
+    <button id="close-success" class="bg-[#ff6b35] text-white px-6 py-2 rounded-lg">确定</button>
+  </div>
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
