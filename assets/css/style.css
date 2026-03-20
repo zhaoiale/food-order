@@ -1,0 +1,194 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft YaHei", sans-serif;
+}
+
+body {
+    background-color: #f8f9fa;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* 头部样式 */
+.header {
+    background: linear-gradient(120deg, #ff7e5f, #feb47b);
+    padding: 1rem 2rem;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 99;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo i {
+    font-size: 1.8rem;
+}
+
+/* 主容器 */
+.main-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+/* 标题样式 */
+.food-section h2, .order-section h2 {
+    margin-bottom: 1rem;
+    color: #ff7e5f;
+    border-bottom: 2px solid #feb47b;
+    padding-bottom: 0.5rem;
+}
+
+/* 菜品卡片 */
+.food-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.food-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transition: 0.3s;
+}
+
+.food-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.food-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.food-info {
+    padding: 1rem;
+}
+
+.food-name {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.price {
+    color: #ff7e5f;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.count-control {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.count-control button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #feb47b;
+    color: white;
+    cursor: pointer;
+}
+
+.count-control button:hover {
+    background: #ff7e5f;
+}
+
+.count {
+    width: 30px;
+    text-align: center;
+}
+
+/* 订单面板 */
+.order-section {
+    position: sticky;
+    top: 100px;
+    align-self: start;
+}
+
+.order-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.order-list {
+    min-height: 200px;
+    margin-bottom: 1rem;
+}
+
+.empty-tip {
+    text-align: center;
+    color: #999;
+    padding: 2rem 0;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.total-price {
+    color: #ff7e5f;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.order-btn-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.clear-btn, .submit-btn {
+    flex: 1;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.clear-btn { background: #eee; }
+.submit-btn {
+    background: linear-gradient(120deg, #ff7e5f, #feb47b);
+    color: white;
+}
+
+/* 底部 */
+.footer {
+    text-align: center;
+    padding: 1.5rem;
+    background: white;
+    margin-top: 2rem;
+    color: #999;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .main-container {
+        grid-template-columns: 1fr;
+    }
+}
