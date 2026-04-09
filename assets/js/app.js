@@ -1,5 +1,6 @@
 import { formatPrice, calcTotal, renderStars, formatSales, debounce, validatePhone } from './utils.js';
 
+// 菜品数据（保持不变）
 const foodData = [
     {
         id: 1,
@@ -87,10 +88,11 @@ const foodData = [
     }
 ];
 
+// 全局订单数据（简化，直接维护）
 let orderList = [];
 let currentCategory = "all";
-let currentFoodId = null;
 
+// DOM元素（简化获取）
 const foodListDom = document.querySelector(".food-list");
 const orderListDom = document.getElementById("orderList");
 const totalPriceDom = document.querySelector(".total-price");
@@ -106,95 +108,133 @@ const submitTotalPriceDom = document.getElementById("submitTotalPrice");
 const contactPhoneInput = document.getElementById("contactPhone");
 const confirmSubmitBtn = document.querySelector(".confirm-submit-btn");
 
+// 渲染菜品（保持不变）
 function renderFood() {
     const filteredFood = currentCategory === "all"
         ? foodData
         : foodData.filter(item => item.category === currentCategory);
 
-    foodListDom.innerHTML = filteredFood.map(item => `
-    <div class="food-card" data-id="${item.id}">
-      <div class="favorite ${item.favorite ? 'active' : ''}" data-id="${item.id}">
-        <i class="bi ${item.favorite ? 'bi-heart-fill' : 'bi-heart'}"></i>
-      </div>
-      <img src="${item.img}" alt="${item.name}">
-      <div class="food-info">
-        <h3 class="food-name">${item.name}</h3>
-        <div class="food-meta">
-          <span class="stars">${renderStars(item.rating)}</span>
-          <span class="sales">${formatSales(item.sales)}</span>
+    foodListDom.innerHTML = filteredFood.map(item => {
+        // 先查当前菜品在订单中的数量
+        const currentCount = orderList.find(o => o.id === item.id)?.count || 0;
+        return `
+        <div class="food-card" data-id="${item.id}">
+          <div class="favorite ${item.favorite ? 'active' : ''}" data-id="${item.id}">
+            <i class="bi ${item.favorite ? 'bi-heart-fill' : 'bi-heart'}"></i>
+          </div>
+          <img src="${item.img}" alt="${item.name}">
+          <div class="food-info">
+            <h3 class="food-name">${item.name}</h3>
+            <div class="food-meta">
+              <span class="stars">${renderStars(item.rating)}</span>
+              <span class="sales">${formatSales(item.sales)}</span>
+            </div>
+            <div class="price">${formatPrice(item.price)}</div>
+            <div class="count-control">
+              <button class="minus" data-id="${item.id}" ${currentCount === 0 ? 'disabled' : ''}>-</button>
+              <span class="count">${currentCount}</span>
+              <button class="plus" data-id="${item.id}" ${currentCount >= item.stock ? 'disabled' : ''}>+</button>
+            </div>
+          </div>
         </div>
-        <div class="price">${formatPrice(item.price)}</div>
-        <div class="count-control">
-          <button class="minus" data-id="${item.id}" ${getCountById(item.id) === 0 ? 'disabled' : ''}>-</button>
-          <span class="count">${getCountById(item.id)}</span>
-          <button class="plus" data-id="${item.id}" ${getCountById(item.id) >= item.stock ? 'disabled' : ''}>+</button>
-        </div>
-      </div>
-    </div>
-  `).join("");
+      `;
+    }).join("");
 
     bindFoodEvent();
 }
 
-function getCountById(id) {
-    const item = orderList.find(item => item.id === id);
-    return item ? item.count : 0;
+// 核心修复：添加菜品到订单
+function addFoodToOrder(id) {
+    const food = foodData.find(item => item.id === id);
+    if (!food) return;
+
+    // 检查是否已在订单中
+    const existingItem = orderList.find(item => item.id === id);
+    if (existingItem) {
+        // 数量+1
+        existingItem.count += 1;
+    } else {
+        // 新增订单项
+        orderList.push({ ...food, count: 1 });
+    }
+
+    // 更新DOM和订单
+    updateFoodCountDom(id);
+    renderOrder();
 }
 
+// 核心修复：减少菜品数量
+function minusFoodFromOrder(id) {
+    const existingItem = orderList.find(item => item.id === id);
+    if (!existingItem) return;
+
+    // 数量-1
+    existingItem.count -= 1;
+
+    // 如果数量为0，从订单中删除
+    if (existingItem.count === 0) {
+        orderList = orderList.filter(item => item.id !== id);
+    }
+
+    // 更新DOM和订单
+    updateFoodCountDom(id);
+    renderOrder();
+}
+
+// 更新菜品卡片的数量显示
+function updateFoodCountDom(id) {
+    const foodCard = document.querySelector(`.food-card[data-id="${id}"]`);
+    if (!foodCard) return;
+
+    const countDom = foodCard.querySelector(".count");
+    const minusBtn = foodCard.querySelector(".minus");
+    const plusBtn = foodCard.querySelector(".plus");
+    const currentCount = orderList.find(o => o.id === id)?.count || 0;
+    const food = foodData.find(item => item.id === id);
+
+    // 更新数量显示
+    countDom.textContent = currentCount;
+    // 更新按钮状态
+    minusBtn.disabled = currentCount === 0;
+    plusBtn.disabled = currentCount >= food.stock;
+
+    // 加入购物车动画
+    foodCard.classList.add("add-cart-animate");
+    setTimeout(() => {
+        foodCard.classList.remove("add-cart-animate");
+    }, 500);
+}
+
+// 绑定菜品事件（修复点击逻辑）
 function bindFoodEvent() {
+    // 加号按钮（核心修复）
     document.querySelectorAll(".plus").forEach(btn => {
-        btn.addEventListener("click", debounce(function() {
+        btn.addEventListener("click", function() {
             const id = +this.dataset.id;
-            const foodCard = this.closest(".food-card");
-            const countDom = foodCard.querySelector(".count");
-            const currentCount = +countDom.textContent;
-            const food = foodData.find(item => item.id === id);
-
-            if (currentCount < food.stock) {
-                countDom.textContent = currentCount + 1;
-                foodCard.classList.add("add-cart-animate");
-                setTimeout(() => {
-                    foodCard.classList.remove("add-cart-animate");
-                }, 500);
-                foodCard.querySelector(".minus").disabled = false;
-                if (currentCount + 1 >= food.stock) {
-                    this.disabled = true;
-                }
-                updateOrder();
-            }
-        }));
+            addFoodToOrder(id);
+        });
     });
 
+    // 减号按钮（核心修复）
     document.querySelectorAll(".minus").forEach(btn => {
-        btn.addEventListener("click", debounce(function() {
+        btn.addEventListener("click", function() {
             const id = +this.dataset.id;
-            const foodCard = this.closest(".food-card");
-            const countDom = foodCard.querySelector(".count");
-            const currentCount = +countDom.textContent;
-            const food = foodData.find(item => item.id === id);
-
-            if (currentCount > 0) {
-                countDom.textContent = currentCount - 1;
-                foodCard.querySelector(".plus").disabled = false;
-                if (currentCount - 1 === 0) {
-                    this.disabled = true;
-                }
-                updateOrder();
-            }
-        }));
+            minusFoodFromOrder(id);
+        });
     });
 
+    // 菜品卡片点击（打开详情）
     document.querySelectorAll(".food-card").forEach(card => {
         card.addEventListener("click", function(e) {
             if (e.target.closest(".favorite") || e.target.closest(".count-control")) {
                 return;
             }
             const id = +this.dataset.id;
-            currentFoodId = id;
             showFoodDetail(id);
         });
     });
 
+    // 收藏按钮
     document.querySelectorAll(".favorite").forEach(btn => {
         btn.addEventListener("click", function(e) {
             e.stopPropagation();
@@ -207,6 +247,7 @@ function bindFoodEvent() {
     });
 }
 
+// 显示菜品详情（保持不变）
 function showFoodDetail(id) {
     const food = foodData.find(item => item.id === id);
     if (!food) return;
@@ -223,35 +264,25 @@ function showFoodDetail(id) {
     foodDetailModal.classList.add("show");
     overlay.classList.add("show");
 
+    // 详情页加入购物车
     document.querySelector(".btn-add-cart").onclick = function() {
-        const foodCard = document.querySelector(`.food-card[data-id="${id}"]`);
-        const plusBtn = foodCard.querySelector(".plus");
-        if (!plusBtn.disabled) {
-            plusBtn.click();
-        }
+        addFoodToOrder(id);
         hideModal(foodDetailModal);
     };
 }
 
+// 隐藏弹窗（保持不变）
 function hideModal(modal) {
     modal.classList.remove("show");
     overlay.classList.remove("show");
 }
 
-function updateOrder() {
-    orderList = [];
-    document.querySelectorAll(".food-card").forEach(card => {
-        const id = +card.dataset.id;
-        const count = +card.querySelector(".count").textContent;
-        if (count > 0) {
-            const food = foodData.find(f => f.id === id);
-            orderList.push({ ...food, count });
-        }
-    });
-    renderOrder();
-}
-
+// 核心修复：渲染订单（确保必显示）
 function renderOrder() {
+    // 清空订单区
+    orderListDom.innerHTML = "";
+
+    // 如果订单为空
     if (orderList.length === 0) {
         orderListDom.innerHTML = `
             <div class="empty-tip">
@@ -263,32 +294,41 @@ function renderOrder() {
         return;
     }
 
-    orderListDom.innerHTML = orderList.map(item => `
-    <div class="order-item" data-id="${item.id}">
-      <div class="item-info">
-        <span>${item.name} × ${item.count}</span>
-      </div>
-      <div class="item-actions">
-        <span>${formatPrice(item.price * item.count)}</span>
-        <span class="delete-item" data-id="${item.id}"><i class="bi bi-x-circle"></i></span>
-      </div>
-    </div>
-  `).join("");
+    // 渲染订单项（核心修复：确保循环正确）
+    let orderHtml = "";
+    orderList.forEach(item => {
+        orderHtml += `
+        <div class="order-item" data-id="${item.id}">
+          <div class="item-info">
+            <span>${item.name} × ${item.count}</span>
+          </div>
+          <div class="item-actions">
+            <span>${formatPrice(item.price * item.count)}</span>
+            <span class="delete-item" data-id="${item.id}"><i class="bi bi-x-circle"></i></span>
+          </div>
+        </div>
+      `;
+    });
+    orderListDom.innerHTML = orderHtml;
 
+    // 计算总价
+    const total = calcTotal(orderList);
+    totalPriceDom.textContent = formatPrice(total);
+
+    // 订单项删除按钮
     document.querySelectorAll(".delete-item").forEach(btn => {
         btn.addEventListener("click", function() {
             const id = +this.dataset.id;
-            const foodCard = document.querySelector(`.food-card[data-id="${id}"]`);
-            foodCard.querySelector(".count").textContent = 0;
-            foodCard.querySelector(".minus").disabled = true;
-            foodCard.querySelector(".plus").disabled = false;
-            updateOrder();
+            // 直接删除该菜品
+            orderList = orderList.filter(item => item.id !== id);
+            // 更新DOM
+            updateFoodCountDom(id);
+            renderOrder();
         });
     });
-
-    totalPriceDom.textContent = formatPrice(calcTotal(orderList));
 }
 
+// 绑定分类标签（保持不变）
 function bindCategoryEvent() {
     tabBtns.forEach(btn => {
         btn.addEventListener("click", function() {
@@ -300,17 +340,19 @@ function bindCategoryEvent() {
     });
 }
 
+// 绑定订单事件（保持不变）
 function bindOrderEvent() {
+    // 清空订单
     document.querySelector(".clear-btn").addEventListener("click", () => {
         if (orderList.length === 0) return;
         if (confirm("确定要清空订单吗？")) {
-            document.querySelectorAll(".count").forEach(c => c.textContent = 0);
-            document.querySelectorAll(".minus").forEach(btn => btn.disabled = true);
-            document.querySelectorAll(".plus").forEach(btn => btn.disabled = false);
-            updateOrder();
+            orderList = [];
+            renderFood(); // 重新渲染菜品数量
+            renderOrder();
         }
     });
 
+    // 提交订单
     document.querySelector(".submit-btn").addEventListener("click", () => {
         if (orderList.length === 0) {
             alert("请选择菜品！");
@@ -330,6 +372,7 @@ function bindOrderEvent() {
         overlay.classList.add("show");
     });
 
+    // 确认下单
     confirmSubmitBtn.addEventListener("click", () => {
         const phone = contactPhoneInput.value.trim();
         if (!validatePhone(phone)) {
@@ -345,15 +388,16 @@ function bindOrderEvent() {
             感谢您的点餐，我们将尽快为您上菜！
         `);
 
-        document.querySelectorAll(".count").forEach(c => c.textContent = 0);
-        document.querySelectorAll(".minus").forEach(btn => btn.disabled = true);
-        document.querySelectorAll(".plus").forEach(btn => btn.disabled = false);
-        updateOrder();
+        // 清空订单
+        orderList = [];
+        renderFood();
+        renderOrder();
         hideModal(submitModal);
         contactPhoneInput.value = "";
     });
 }
 
+// 绑定弹窗关闭（保持不变）
 function bindModalCloseEvent() {
     closeModalBtns.forEach(btn => {
         btn.addEventListener("click", function() {
@@ -375,6 +419,7 @@ function bindModalCloseEvent() {
     });
 }
 
+// 初始化
 window.onload = () => {
     renderFood();
     bindCategoryEvent();
